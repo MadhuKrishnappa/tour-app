@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+
+	xsi:schemaLocation="  
+		http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd 
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+	<context:component-scan base-package="com.tour.app" />
+	<task:annotation-driven />
+
+
+<!--	<bean id="props"-->
+<!--		class="org.springframework.beans.factory.config.PropertiesFactoryBean">-->
+<!--		<property name="locations">-->
+<!--			<list>-->
+<!--				<value>classpath:application.properties</value>-->
+<!--			</list>-->
+<!--		</property>-->
+<!--	</bean>-->
+<!--	-->
+
+
+	
+
+	
+<!--	<bean id="o2DataSource" class="org.apache.commons.dbcp2.BasicDataSource"-->
+<!--	destroy-method="close">-->
+<!--		<property name="driverClassName" value="${hibernate.connection.driver_class}" />-->
+<!--		<property name="url" value="${hibernate.connection.url}" />-->
+<!--		<property name="username" value="${hibernate.connection.username}" />-->
+<!--		<property name="password" value="${hibernate.connection.password}" />-->
+<!--		<property name="initialSize" value="${hibernate.connection.initialSize}" />-->
+<!--		<property name="maxTotal" value="${hibernate.connection.maxTotal}" />-->
+<!--		<property name="maxIdle" value="${hibernate.connection.maxIdle}" />-->
+<!--		<property name="maxWaitMillis" value="15000" />-->
+<!--		<property name="validationQuery" value="SELECT 1 FROM dual" />-->
+<!--	</bean>-->
+
+
+
+	
+
+
+<!--  	 <bean id="serviceRegistry" class="java.util.HashMap" scope="prototype" >-->
+<!--	    <constructor-arg>-->
+<!--	        <map key-type="java.lang.String" value-type="com.o2.core.common.service.IService">-->
+<!--	       -->
+<!--				-->
+<!--				<entry key="EMAIL_SIGNIN_SERVICE" value-ref="emailSignInService" />-->
+<!--				<entry key="FACEBOOK_SIGNIN_SERVICE" value-ref="facebookSignInService" />-->
+<!--	            <entry key="SIGNUP_SERVICE" value-ref="signUpService" ></entry>-->
+<!--	            <entry key="SESSION_FETCH_SERVICE" value-ref="sessionFetchService" ></entry>-->
+<!--	            <entry key="CREATE_SESSION_SERVICE" value-ref="createSessionService" ></entry>-->
+<!--	            <entry key="UPDATE_SESSION_SERVICE" value-ref="updateSessionService" ></entry>-->
+<!--	            <entry key="CODE_MASTER_LKP" value-ref="codeMasterService" />-->
+<!--	            &lt;!&ndash; <entry key="SIGNIN_SERVICE" value-ref="signInService" /> &ndash;&gt;-->
+<!--	            <entry key="GAMEPLAY_SERVICE" value-ref="gamePlayService"></entry>-->
+<!--	           -->
+<!--	            -->
+<!--	            <entry key="GOOGLE_SIGNIN_SERVICE" value-ref="googleSignInService"></entry>-->
+<!--	            -->
+<!--	        </map>-->
+<!--	    </constructor-arg> -->
+<!--	</bean>		-->
+	
+
+	 
+</beans>
