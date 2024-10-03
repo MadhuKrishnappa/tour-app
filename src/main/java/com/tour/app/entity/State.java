@@ -1,7 +1,6 @@
 package com.tour.app.entity;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -11,9 +10,8 @@ import java.util.Date;
 @Setter
 @Getter
 @ToString
-@NoArgsConstructor
-@Table(name = "cities")
-public class Cities {
+@Table(name = "states")
+public class State {
 
     @Column(name = "id")
     public BigInteger id;
@@ -21,11 +19,11 @@ public class Cities {
     @Column(name = "name")
     public String name;
 
-    @Column(name = "city_code")
-    public String cityCode;
+    @Column(name = "state_code")
+    public String stateCode;
 
-    @Column(name = "state_id")
-    public BigInteger stateId;
+    @Column(name = "country_id")
+    public BigInteger countryId;
 
     @Column(name = "status")
     public String status;
@@ -35,5 +33,4 @@ public class Cities {
 
     @Column(name = "updated_at")
     public Date updatedAt;
-
 }

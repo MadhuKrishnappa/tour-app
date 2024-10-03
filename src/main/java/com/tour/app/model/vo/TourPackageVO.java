@@ -30,6 +30,7 @@ public class TourPackageVO {
     public int durationNights;
     public BigDecimal packageRating;
     public int totalPackageReviews;
+    public BigDecimal minPackagePrice;
     public Map<BigInteger, List<Date>> departureCityDatesMappings;
     public List<Date> departureDates;
     public List<PackageTypeEnum> packageTypes;

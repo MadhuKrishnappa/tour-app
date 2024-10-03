@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
 
 @Setter
@@ -14,7 +12,7 @@ import java.util.List;
 @ToString
 public class TourDetailsVO {
 
-    public FlightDetailVO flightDetails;
+    public List<FlightDetailVO> flightDetails;
     public List<AccommodationDetailVO> accommodationDetails;
-    public List<ReportingAndDropping> reportingAndDroppings;
+    public List<ReportingAndDroppingVO> reportingAndDroppingVOS;
 }

@@ -5,12 +5,15 @@ import com.tour.app.entity.AccommodationDetails;
 import com.tour.app.utilities.DatabaseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @Repository
 public class AccommodationDetailDaoImpl implements IAccommodationDetailDao {
@@ -30,5 +33,14 @@ public class AccommodationDetailDaoImpl implements IAccommodationDetailDao {
         accommodationDetail.setId(new BigInteger(keyHolder.getKey().toString()));
 
         return accommodationDetail;
+    }
+
+    @Override
+    public List<AccommodationDetails> getByPackageId(BigInteger packageId) {
+
+        String query = " select * from accommodation_details ad  where package_id = :packageId and status  = 'ACTIVE'; ";
+        MapSqlParameterSource map= new MapSqlParameterSource();
+        map.addValue("packageId", packageId);
+        return jdbcTemplate.query(query, map, new BeanPropertyRowMapper<>(AccommodationDetails.class));
     }
 }

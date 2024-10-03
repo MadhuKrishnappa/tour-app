@@ -1,6 +1,8 @@
 package com.tour.app.services.impl;
 
 import com.tour.app.das.IAccommodationDetailDao;
+import com.tour.app.das.ICityDao;
+import com.tour.app.das.ICountryDao;
 import com.tour.app.das.IFlightDetailDao;
 import com.tour.app.das.IPackageTouringCityMapping;
 import com.tour.app.das.IPackageDao;
@@ -13,8 +15,12 @@ import com.tour.app.das.IPackageThemeMappingDao;
 import com.tour.app.das.IPackageTypeDao;
 import com.tour.app.das.IPackageTypeMappingDao;
 import com.tour.app.das.IReportingAndDroppingDao;
+import com.tour.app.das.IStateDao;
 import com.tour.app.das.ITourInformationDao;
 import com.tour.app.entity.AccommodationDetails;
+import com.tour.app.entity.City;
+import com.tour.app.entity.Country;
+import com.tour.app.entity.FetchPackageList;
 import com.tour.app.entity.FlightDetails;
 import com.tour.app.entity.PackageDepartureCityDateMapping;
 import com.tour.app.entity.PackageTouringCityMapping;
@@ -27,31 +33,48 @@ import com.tour.app.entity.PackageType;
 import com.tour.app.entity.PackageTypeMapping;
 import com.tour.app.entity.Packages;
 import com.tour.app.entity.ReportingAndDroppingDetail;
+import com.tour.app.entity.State;
 import com.tour.app.entity.TourInformation;
+import com.tour.app.model.FetchPackageListVO;
+import com.tour.app.model.enums.GuestSharingTypeEnum;
+import com.tour.app.model.enums.PackageItineraryAddonTypeEnum;
+import com.tour.app.model.enums.PackageRateTypeEnum;
 import com.tour.app.model.enums.PackageThemeEnum;
 import com.tour.app.model.enums.PackageTypeEnum;
 import com.tour.app.model.enums.Status;
+import com.tour.app.model.enums.TourInformationEnum;
 import com.tour.app.model.vo.AccommodationDetailVO;
+import com.tour.app.model.vo.CityVO;
+import com.tour.app.model.vo.CountryVO;
 import com.tour.app.model.vo.FlightDetailVO;
+import com.tour.app.model.vo.PackageDetailsVO;
 import com.tour.app.model.vo.PackageItineraryAddons;
 import com.tour.app.model.vo.PackageItineraryVO;
-import com.tour.app.model.vo.ReportingAndDropping;
+import com.tour.app.model.vo.PackageRateVO;
+import com.tour.app.model.vo.ReportingAndDroppingVO;
+import com.tour.app.model.vo.StateVO;
 import com.tour.app.model.vo.TourDetailsVO;
 import com.tour.app.model.vo.TourInformationVO;
 import com.tour.app.model.vo.TourPackageVO;
 import com.tour.app.request.AddPackageRequest;
 import com.tour.app.request.FetchPackageRequest;
+import com.tour.app.response.FetchPackageResponse;
+import com.tour.app.response.PackageDetailResponse;
 import com.tour.app.services.IPackageService;
 import org.apache.tomcat.util.buf.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class PackageServiceImpl implements IPackageService {
@@ -98,23 +121,57 @@ public class PackageServiceImpl implements IPackageService {
     @Autowired
     IFlightDetailDao flightDetailDao;
 
+    @Autowired
+    ICityDao cityDao;
+
+    @Autowired
+    IStateDao stateDao;
+
+    @Autowired
+    ICountryDao countryDao;
+
 
     @Override
-    public TourPackageVO fetchPackages(FetchPackageRequest fetchPackageRequest) throws Exception {
+    public FetchPackageResponse fetchPackages(FetchPackageRequest fetchPackageRequest) throws Exception {
 
         if(fetchPackageRequest == null){
             throw new Exception("Request is mandatory");
         }
 
-        Packages packages = packageDAO.getPackageById(1000);
+        List<FetchPackageList> packageList = packageDAO.getPackageListingByFilter(fetchPackageRequest);
+        List<FetchPackageListVO> fetchPackageListVOList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(packageList)){
+            for (FetchPackageList fetchPackageList : packageList){
+                FetchPackageListVO fetchPackageListVO = new FetchPackageListVO();
+                fetchPackageListVO.setPackageId(fetchPackageList.getPackageId());
+                fetchPackageListVO.setPackageName(fetchPackageList.getPackageName());
+                fetchPackageListVO.setPackageCode(fetchPackageList.getPackageCode());
+                fetchPackageListVO.setDurationDays(fetchPackageList.getDurationDays());
+                fetchPackageListVO.setDurationNights(fetchPackageList.getDurationNights());
+                fetchPackageListVO.setPackageRating(fetchPackageList.getPackageRating());
+                fetchPackageListVO.setPackageReviews(fetchPackageList.getPackageReviews());
+                if(fetchPackageList.getPackageListImages() != null) {
+                    fetchPackageListVO.setPackageListImages(Arrays.asList(fetchPackageList.getPackageListImages().split("\\s*,\\s*")));
+                }
+                if(fetchPackageList.getDepartureCities()!= null) {
+                    fetchPackageListVO.setDepartureCities(Arrays.asList(fetchPackageList.getDepartureCities().split("\\s*,\\s*")));
+                }
+                if(fetchPackageList.getDepartureDates()!= null) {
+                    fetchPackageListVO.setDepartureDates(Arrays.asList(fetchPackageList.getDepartureDates().split("\\s*,\\s*")));
+                }
+                fetchPackageListVO.setPackageRateStartsFrom(fetchPackageList.minPackagePrice);
+                if(fetchPackageList.getTourIncludes() != null) {
+                    fetchPackageListVO.setTourIncludes(Arrays.asList(fetchPackageList.getTourIncludes().split("\\s*,\\s*")));
+                }
+                fetchPackageListVOList.add(fetchPackageListVO);
+            }
+        }
 
-        TourPackageVO tourPackageVO = new TourPackageVO();
-        tourPackageVO.setId(packages.getId());
-        tourPackageVO.setPackageName(packages.getPackageName());
-        tourPackageVO.setPackageCode(packages.getPackageCode());
 
+        FetchPackageResponse response = new FetchPackageResponse();
+        response.setFetchPackageList(fetchPackageListVOList);
 
-        return tourPackageVO;
+        return response;
     }
 
     @Override
@@ -268,7 +325,7 @@ public class PackageServiceImpl implements IPackageService {
                 AccommodationDetails accommodationDetail = new AccommodationDetails();
                 accommodationDetail.setPackageId(packageId);
                 accommodationDetail.setSequenceCount(accommodationDetailVO.getSequenceCount());
-                accommodationDetail.setCityIds(accommodationDetailVO.getCityIds().stream().map(e -> e.toString()).collect(Collectors.joining(",")));
+                accommodationDetail.setCityId(accommodationDetailVO.getCityId());
                 accommodationDetail.setHotelName(accommodationDetailVO.getHotelName());
                 accommodationDetail.setCheckInDate(accommodationDetailVO.getCheckInDate());
                 accommodationDetail.setCheckOutDate(accommodationDetailVO.getCheckOutDate());
@@ -277,35 +334,39 @@ public class PackageServiceImpl implements IPackageService {
                 accommodationDetailDao.add(accommodationDetail);
             }
 
-            for (ReportingAndDropping reportingAndDropping : tourDetails.getReportingAndDroppings()){
+            for (ReportingAndDroppingVO reportingAndDroppingVO : tourDetails.getReportingAndDroppingVOS()){
                 ReportingAndDroppingDetail reportingAndDroppingDetail = new ReportingAndDroppingDetail();
                 reportingAndDroppingDetail.setPackageId(packageId);
-                reportingAndDroppingDetail.setGuestType(reportingAndDropping.getGuestType());
-                reportingAndDroppingDetail.setReportingPoint(reportingAndDropping.getReportingPoint());
-                reportingAndDroppingDetail.setDroppingPoint(reportingAndDropping.getDroppingPoint());
+                reportingAndDroppingDetail.setGuestType(reportingAndDroppingVO.getGuestType());
+                reportingAndDroppingDetail.setReportingPoint(reportingAndDroppingVO.getReportingPoint());
+                reportingAndDroppingDetail.setDroppingPoint(reportingAndDroppingVO.getDroppingPoint());
                 reportingAndDroppingDetail.setStatus(Status.ACTIVE.toString());
 
                 reportingAndDroppingDao.add(reportingAndDroppingDetail);
 
             }
 
-            FlightDetailVO flightDetailVO = tourDetails.getFlightDetails();
-            FlightDetails flightDetail = new FlightDetails();
-            flightDetail.setPackageId(packageId);
-            flightDetail.setFlightName(flightDetailVO.getFlightName());
-            flightDetail.setDepartureCityId(flightDetailVO.getDepartureCityId());
-            flightDetail.setDepartureDate(flightDetailVO.getDepartureDate());
-            flightDetail.setArrivalCityId(flightDetailVO.getArrivalCityId());
-            flightDetail.setArrivalDate(flightDetailVO.getArrivalDate());
-            flightDetail.setStatus(Status.ACTIVE.toString());
-            flightDetailDao.add(flightDetail);
+            List<FlightDetailVO> flightDetailsList = tourDetails.getFlightDetails();
+            if(!CollectionUtils.isEmpty(flightDetailsList)) {
+                for (FlightDetailVO flightDetailVO : flightDetailsList) {
+                    FlightDetails flightDetail = new FlightDetails();
+                    flightDetail.setPackageId(packageId);
+                    flightDetail.setFlightName(flightDetailVO.getFlightName());
+                    flightDetail.setDepartureCityId(flightDetailVO.getDepartureCityId());
+                    flightDetail.setDepartureDate(flightDetailVO.getDepartureDate());
+                    flightDetail.setArrivalCityId(flightDetailVO.getArrivalCityId());
+                    flightDetail.setArrivalDate(flightDetailVO.getArrivalDate());
+                    flightDetail.setStatus(Status.ACTIVE.toString());
+                    flightDetailDao.add(flightDetail);
+                }
+            }
 
             List<TourInformationVO> tourInfoList = tourPackage.getTourInformation();
 
             for(TourInformationVO tourInformationVO: tourInfoList){
                 TourInformation tourInformation = new TourInformation();
                 tourInformation.setPackageId(packageId);
-                tourInformation.setInformationType(tourInformationVO.getInformationType());
+                tourInformation.setInformationType(tourInformationVO.getInformationType().toString());
                 tourInformation.setDescription(tourInformationVO.getDescription());
                 tourInformation.setStatus(Status.ACTIVE.toString());
 
@@ -313,5 +374,334 @@ public class PackageServiceImpl implements IPackageService {
             }
 
         }
+    }
+
+    @Override
+    public PackageDetailResponse fetchPackageDetails(BigInteger packageId) throws Exception {
+
+
+        if(packageId == null){
+            throw new Exception("PackageId is mandatory");
+        }
+
+        FetchPackageRequest fetchPackageRequest = new FetchPackageRequest();
+        fetchPackageRequest.setPackageIds(Arrays.asList(packageId));
+        List<FetchPackageList> packageList = packageDAO.getPackageListingByFilter(fetchPackageRequest);
+        if(CollectionUtils.isEmpty(packageList)){
+            throw new Exception("Invalid PackageId");
+        }
+        FetchPackageList data = packageList.get(0);
+        PackageDetailResponse detailResponse = new PackageDetailResponse();
+        PackageDetailsVO packageDetails = new PackageDetailsVO();
+        packageDetails.setId(data.getPackageId());
+        packageDetails.setPackageName(data.getPackageName());
+        packageDetails.setPackageCode(data.getPackageCode());
+
+
+        if(data.getPackageListImages() != null){
+            List<String> listImages = Stream.of(data.getPackageListImages().split(","))
+                    .map(String::toString)
+                    .collect(Collectors.toList());
+
+            packageDetails.setPackageListImages(listImages);
+        }
+        if(data.getPackageDetailImages() != null){
+            List<String> detailImages = Stream.of(data.getPackageDetailImages().split(","))
+                    .map(String::toString)
+                    .collect(Collectors.toList());
+
+            packageDetails.setPackageDetailImages(detailImages);
+        }
+        if(data.getDepartureCityIds() != null){
+            List<BigInteger> depCities = Stream.of(data.getDepartureCityIds().split(","))
+                    .map(BigInteger::new)
+                    .collect(Collectors.toList());
+
+            packageDetails.setDepartureCities(getCityDetailsByCityIds(depCities));
+        }
+
+        packageDetails.setDurationDays(data.getDurationDays());
+        packageDetails.setDurationNights(data.getDurationNights());
+        packageDetails.setPackageRating(data.getPackageRating());
+        packageDetails.setTotalPackageReviews(data.getPackageReviews());
+        packageDetails.setMinPackagePrice(data.getMinPackagePrice());
+        packageDetails.setDepartureCityDatesMappings(getDepartureCityDateMappingsByPackageId(data.getPackageId()));
+        if(data.getDepartureDates() != null){
+        List<String> depDates = Stream.of(data.getDepartureDates().split(","))
+                .map(String::toString)
+                .collect(Collectors.toList());
+            packageDetails.setDepartureDates(depDates);
+        }
+        if(data.getPackageTypes() != null){
+            List<String> packageTypes = Stream.of(data.getPackageTypes().split(","))
+                    .map(String::toString)
+                    .collect(Collectors.toList());
+            packageDetails.setPackageTypes(packageTypes);
+        }
+
+        if(data.getPackageThemes() != null){
+            List<String> packageThemes = Stream.of(data.getPackageThemes().split(","))
+                    .map(String::toString)
+                    .collect(Collectors.toList());
+            packageDetails.setPackageThemes(packageThemes);
+        }
+
+        if(data.getTourIncludes() != null){
+            List<String> tourIncludes = Stream.of(data.getTourIncludes().split(","))
+                    .map(String::toString)
+                    .collect(Collectors.toList());
+            packageDetails.setTourIncludes(tourIncludes);
+        }
+
+        packageDetails.setPackageRates(getPackageRatesByPackageId(data.getPackageId()));
+        packageDetails.setItineraries(getItineraryDetailsByPackageId(data.getPackageId()));
+        packageDetails.setTourInformation(getTourInformationByPackageId(data.getPackageId()));
+        packageDetails.setTourDetails(getTourDetailsByPackageId(data.getPackageId()));
+        packageDetails.setStatus(Status.valueOf(data.getStatus()));
+        packageDetails.setCreatedAt(data.getCreatedAt());
+        packageDetails.setUpdatedAt(data.getUpdatedAt());
+
+
+
+
+        detailResponse.setPackageDetails(packageDetails);
+
+
+        return detailResponse;
+    }
+
+    private Map<CityVO, List<Date>> getDepartureCityDateMappingsByPackageId(BigInteger packageId) {
+
+        return null;
+    }
+
+    private TourDetailsVO getTourDetailsByPackageId(BigInteger packageId) {
+
+        TourDetailsVO tourDetailsVO = new TourDetailsVO();
+        tourDetailsVO.setFlightDetails(getFlightDetailsByPackageId(packageId));
+        tourDetailsVO.setAccommodationDetails(getAccommodationDetailsByPackageId(packageId));
+        tourDetailsVO.setReportingAndDroppingVOS(getReportingAndDroppingDetailsByPackageId(packageId));
+
+        return tourDetailsVO;
+    }
+
+    private List<ReportingAndDroppingVO> getReportingAndDroppingDetailsByPackageId(BigInteger packageId) {
+
+        List<ReportingAndDroppingDetail> dataList = reportingAndDroppingDao.getByPackageId(packageId);
+        List<ReportingAndDroppingVO> responseList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(dataList)){
+            for (ReportingAndDroppingDetail data : dataList){
+                ReportingAndDroppingVO dataVO = new ReportingAndDroppingVO();
+                dataVO.setId(data.getId());
+                dataVO.setPackageId(data.getPackageId());
+                dataVO.setGuestType(data.getGuestType());
+                dataVO.setDroppingPoint(data.getDroppingPoint());
+                dataVO.setReportingPoint(data.getReportingPoint());
+                dataVO.setStatus(Status.valueOf(data.getStatus()));
+                dataVO.setCreatedAt(data.getCreatedAt());
+                dataVO.setUpdatedAt(data.getUpdatedAt());
+                responseList.add(dataVO);
+            }
+        }
+        return responseList;
+    }
+
+    private List<AccommodationDetailVO> getAccommodationDetailsByPackageId(BigInteger packageId) {
+
+        List<AccommodationDetails> accommodationDetailList = accommodationDetailDao.getByPackageId(packageId);
+        List<AccommodationDetailVO> responseList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(accommodationDetailList)){
+            for (AccommodationDetails data : accommodationDetailList){
+                AccommodationDetailVO detailVO = new AccommodationDetailVO();
+                detailVO.setId(data.getId());
+                detailVO.setPackageId(data.getPackageId());
+                List<CityVO> cityList = getCityDetailsByCityIds(Arrays.asList(data.getCityId()));
+                if(!CollectionUtils.isEmpty(cityList)) {
+                    detailVO.setCity(cityList.get(0));
+                }
+                detailVO.setCheckInDate(data.getCheckInDate());
+                detailVO.setCheckOutDate(data.getCheckOutDate());
+                detailVO.setStatus(Status.valueOf(data.getStatus()));
+                detailVO.setCreatedAt(data.getCreatedAt());
+                detailVO.setUpdatedAt(data.getUpdatedAt());
+                responseList.add(detailVO);
+            }
+        }
+        return responseList;
+    }
+
+    private List<FlightDetailVO> getFlightDetailsByPackageId(BigInteger packageId) {
+
+        List<FlightDetails> dataList = flightDetailDao.getByPackageId(packageId);
+        List<FlightDetailVO> responseList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(dataList)){
+            for (FlightDetails data : dataList){
+                FlightDetailVO flightDetailVO = new FlightDetailVO();
+                flightDetailVO.setId(data.getId());
+                flightDetailVO.setFlightName(data.getFlightName());
+                flightDetailVO.setDepartureDate(data.getDepartureDate());
+                flightDetailVO.setArrivalDate(data.getArrivalDate());
+
+                List<CityVO> arrivalCities = getCityDetailsByCityIds(Arrays.asList(data.getArrivalCityId()));
+                if(!CollectionUtils.isEmpty(arrivalCities)) {
+                    flightDetailVO.setArrivalCity(arrivalCities.get(0));
+                }
+
+                List<CityVO> depCities = getCityDetailsByCityIds(Arrays.asList(data.getDepartureCityId()));
+                if(!CollectionUtils.isEmpty(depCities)) {
+                    flightDetailVO.setDepartureCity(depCities.get(0));
+                }
+                flightDetailVO.setStatus(Status.valueOf(data.getStatus()));
+                flightDetailVO.setCreatedAt(data.getCreatedAt());
+                flightDetailVO.setUpdatedAt(data.getUpdatedAt());
+                responseList.add(flightDetailVO);
+            }
+        }
+
+        return responseList;
+    }
+
+    private List<TourInformationVO> getTourInformationByPackageId(BigInteger packageId) {
+
+        List<TourInformation> dataList = tourInformationDao.getByPackageId(packageId);
+        List<TourInformationVO> responseList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(dataList)){
+            for (TourInformation tourInformation : dataList){
+                TourInformationVO informationVO = new TourInformationVO();
+                informationVO.setId(tourInformation.getId());
+                informationVO.setInformationType(TourInformationEnum.valueOf(tourInformation.getInformationType()));
+                informationVO.setPackageId(tourInformation.packageId);
+                informationVO.setDescription(tourInformation.description);
+                informationVO.setStatus(Status.valueOf(tourInformation.getStatus()));
+                informationVO.setCreatedAt(tourInformation.getCreatedAt());
+                informationVO.setUpdatedAt(tourInformation.getUpdatedAt());
+                responseList.add(informationVO);
+            }
+        }
+        return responseList;
+    }
+
+    private List<PackageItineraryVO> getItineraryDetailsByPackageId(BigInteger packageId) {
+
+        List<PackageItinerary> dataList = packageItineraryDao.getByPackageId(packageId);
+        List<PackageItineraryVO> packageItineraryVOList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(dataList)){
+            for (PackageItinerary data : dataList) {
+                PackageItineraryVO packageItineraryVO = new PackageItineraryVO();
+                packageItineraryVO.setId(data.getId());
+                packageItineraryVO.setPackageId(data.getPackageId());
+                packageItineraryVO.setItineraryTitle(data.getItineraryTitle());
+                packageItineraryVO.setItineraryImages(Arrays.asList( data.getItineraryImages().split("\\s*,\\s*")));
+                packageItineraryVO.setItineraryDate(data.getItineraryDate());
+
+                List<BigInteger> cityIds = Stream.of(data.getCityIds().split(","))
+                        .map(BigInteger::new)
+                        .collect(Collectors.toList());
+                packageItineraryVO.setCities(getCityDetailsByCityIds(cityIds));
+                packageItineraryVO.setDescription(data.getDescription());
+                packageItineraryVO.setNote(data.getNote());
+                packageItineraryVO.setDayCount(data.dayCount);
+                packageItineraryVO.setItineraryAddons(getItineraryAddonsByItineraryId(data.getId()));
+                packageItineraryVO.setStatus(Status.valueOf(data.getStatus()));
+                packageItineraryVO.setCreatedAt(data.getCreatedAt());
+                packageItineraryVO.setUpdatedAt(data.getUpdatedAt());
+                packageItineraryVOList.add(packageItineraryVO);
+            }
+
+        }
+        return packageItineraryVOList;
+    }
+
+    private List<CityVO> getCityDetailsByCityIds(List<BigInteger> cityIds) {
+
+        List<City> cityList = cityDao.getByIds(cityIds);
+        List<CityVO> cityVOList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(cityList)){
+            for (City city : cityList){
+                CityVO cityVO = new CityVO();
+                cityVO.setId(city.getId());
+                cityVO.setName(city.getName());
+                cityVO.setCityCode(city.getCityCode());
+                cityVO.setState(getStateDetailsByStateId(city.getStateId()));
+                cityVO.setStatus(Status.valueOf(city.getStatus()));
+                cityVO.setCreatedAt(city.getCreatedAt());
+                cityVO.setUpdatedAt(city.getUpdatedAt());
+                cityVOList.add(cityVO);
+            }
+        }
+        return cityVOList;
+    }
+
+    private StateVO getStateDetailsByStateId(BigInteger stateId) {
+
+        State state = stateDao.getByStateId(stateId);
+        StateVO stateVO = new StateVO();
+        stateVO.setId(state.getId());
+        stateVO.setName(state.getName());
+        stateVO.setStateCode(state.getStateCode());
+        stateVO.setCountry(getCountryDetailsById(state.getCountryId()));
+        stateVO.setStatus(Status.valueOf(state.getStatus()));
+        stateVO.setCreatedAt(state.getCreatedAt());
+        stateVO.setUpdatedAt(state.getUpdatedAt());
+        return stateVO;
+    }
+
+    private CountryVO getCountryDetailsById(BigInteger countryId) {
+
+        Country country = countryDao.getById(countryId);
+        CountryVO countryVO = new CountryVO();
+        countryVO.setId(country.getId());
+        countryVO.setName(country.getName());
+        countryVO.setCountryCode(country.getCountryCode());
+        countryVO.setStatus(Status.valueOf(country.getStatus()));
+        countryVO.setCreatedAt(country.getCreatedAt());
+        countryVO.setUpdatedAt(country.getUpdatedAt());
+
+        return countryVO;
+    }
+
+    private List<PackageItineraryAddons> getItineraryAddonsByItineraryId(BigInteger itineraryId) {
+
+        List<PackageItineraryAddon> dataList = packageItineraryAddonDao.getByItineraryId(itineraryId);
+        List<PackageItineraryAddons> responseList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(dataList)){
+            for (PackageItineraryAddon data : dataList){
+                PackageItineraryAddons addons = new PackageItineraryAddons();
+                addons.setId(data.getId());
+                addons.setPackageItineraryId(data.getPackageItineraryId());
+                addons.setItineraryAddonType(PackageItineraryAddonTypeEnum.valueOf(data.getAddonType()));
+                addons.setDescription(data.getDescription());
+                addons.setStatus(Status.valueOf(data.getStatus()));
+                addons.setCreatedAt(data.getCreatedAt());
+                addons.setUpdatedAt(data.getUpdatedAt());
+                responseList.add(addons);
+            }
+        }
+        return responseList;
+    }
+
+    private List<PackageRateVO> getPackageRatesByPackageId(BigInteger packageId) {
+
+        List<PackageRates> data = packageRateDao.getByPackageId(packageId);
+        List<PackageRateVO> responseData = new ArrayList<>();
+
+        if(!CollectionUtils.isEmpty(data)){
+            for (PackageRates  rates : data) {
+                PackageRateVO packageRateVO = new PackageRateVO();
+                packageRateVO.setId(rates.getId());
+                packageRateVO.setPackageId(rates.getPackageId());
+                packageRateVO.setPackageRateType(PackageRateTypeEnum.valueOf(rates.getPackageRateType()));
+                packageRateVO.setGuestSharingType(GuestSharingTypeEnum.valueOf(rates.getGuestSharingType()));
+                packageRateVO.setAdultRate(rates.getAdultRate());
+                packageRateVO.setChildRateWithBed(rates.getChildRateWithBed());
+                packageRateVO.setChildRateWithoutBed(rates.getChildRateWithoutBed());
+                packageRateVO.setInfantRate(rates.getInfantRate());
+                packageRateVO.setStatus(Status.valueOf(rates.getStatus()));
+                packageRateVO.setCreatedAt(rates.getCreatedAt());
+                packageRateVO.setUpdatedAt(rates.getUpdatedAt());
+                responseData.add(packageRateVO);
+            }
+        }
+        return responseData;
     }
 }

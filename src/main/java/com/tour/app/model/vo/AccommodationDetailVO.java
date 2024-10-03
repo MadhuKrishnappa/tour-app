@@ -1,5 +1,6 @@
 package com.tour.app.model.vo;
 
+import com.tour.app.model.enums.Status;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,9 +14,15 @@ import java.util.List;
 @ToString
 public class AccommodationDetailVO {
 
+    public BigInteger id;
+    public BigInteger packageId;
     public int sequenceCount;
-    public List<BigInteger> cityIds;
+    public BigInteger cityId;
+    public CityVO city;
     public String hotelName;
     public Date checkInDate;
     public Date checkOutDate;
+    public Status status;
+    public Date createdAt;
+    public Date updatedAt;
 }

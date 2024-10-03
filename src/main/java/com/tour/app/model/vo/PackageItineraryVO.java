@@ -23,6 +23,7 @@ public class PackageItineraryVO {
     public Date itineraryDate;
     public List<String> itineraryImages;
     public List<BigInteger> cityIds;
+    public List<CityVO> cities;
     public List<PackageItineraryAddons> itineraryAddons;
     public Status status;
     public Date createdAt;

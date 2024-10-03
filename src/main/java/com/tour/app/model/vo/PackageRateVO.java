@@ -17,8 +17,8 @@ import java.util.Date;
 @ToString
 public class PackageRateVO {
 
-    public int id;
-    public int packageId;
+    public BigInteger id;
+    public BigInteger packageId;
     public PackageRateTypeEnum packageRateType;
     public GuestSharingTypeEnum guestSharingType;
     public BigDecimal adultRate;

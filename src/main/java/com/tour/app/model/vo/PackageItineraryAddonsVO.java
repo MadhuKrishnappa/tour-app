@@ -1,6 +1,5 @@
 package com.tour.app.model.vo;
 
-import com.tour.app.model.enums.ItineraryAddOnTypeEnum;
 import com.tour.app.model.enums.Status;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +15,7 @@ public class PackageItineraryAddonsVO {
 
     public BigInteger id;
     public BigInteger packageItineraryId;
-    public ItineraryAddOnTypeEnum itineraryAddOnType;
+    public PackageItineraryAddonsVO itineraryAddOnType;
     public String description;
     public Status status;
     public Date createdAt;

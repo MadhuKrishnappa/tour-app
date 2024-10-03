@@ -23,8 +23,8 @@ public class AccommodationDetails {
     @Column(name = "sequence_count")
     public int sequenceCount;
 
-    @Column(name = "city_ids")
-    public String cityIds;
+    @Column(name = "city_id")
+    public BigInteger cityId;
 
     @Column(name = "hotel_name")
     public String hotelName;
