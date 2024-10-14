@@ -80,7 +80,7 @@ public class PackageController {
     }
 
 
-    @RequestMapping(value = "/details/{packageId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/details/{packageId}", method = RequestMethod.GET)
     public @ResponseBody
     ServiceResponse<PackageDetailResponse> fetchPackageDetails(HttpServletRequest request,
                                                                @PathVariable("packageId") BigInteger packageId) throws Exception {

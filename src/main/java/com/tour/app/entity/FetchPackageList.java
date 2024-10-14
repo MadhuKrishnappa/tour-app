@@ -37,6 +37,9 @@ public class FetchPackageList {
     @Column(name = "tour_includes")
     public String tourIncludes;
 
+    @Column(name = "package_rate_types")
+    public String packageRateTypes;
+
     @Column(name = "duration_days")
     public int durationDays;
 

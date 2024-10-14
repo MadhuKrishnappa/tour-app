@@ -396,7 +396,12 @@ public class PackageServiceImpl implements IPackageService {
         packageDetails.setId(data.getPackageId());
         packageDetails.setPackageName(data.getPackageName());
         packageDetails.setPackageCode(data.getPackageCode());
-
+        if(data.getPackageRateTypes() != null) {
+            List<String> packageRateTypes = Stream.of(data.getPackageRateTypes().split(","))
+                    .map(String::toString)
+                    .collect(Collectors.toList());
+            packageDetails.setPackageRateTypes(packageRateTypes);
+        }
 
         if(data.getPackageListImages() != null){
             List<String> listImages = Stream.of(data.getPackageListImages().split(","))

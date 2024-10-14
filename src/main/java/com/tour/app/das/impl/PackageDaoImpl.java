@@ -65,7 +65,8 @@ public class PackageDaoImpl implements IPackageDao {
                 "p.package_reviews, p.tour_includes , p.package_list_images, GROUP_CONCAT(distinct c3.name) as departure_cities,\n" +
                 "GROUP_CONCAT(DISTINCT pdcdm.departure_date) as departure_dates,MIN(pr.adult_rate) as min_package_price,\n" +
                 "GROUP_CONCAT(DISTINCT pt.package_type) as package_types, GROUP_CONCAT(DISTINCT pt2.theme_type) as package_themes,\n" +
-                "p.status, p.created_at , p.updated_at, GROUP_CONCAT(distinct c3.id) as departure_city_ids \n" +
+                "p.status, p.created_at , p.updated_at, GROUP_CONCAT(distinct c3.id) as departure_city_ids, p.package_detail_images,\n" +
+                " GROUP_CONCAT(DISTINCT pr.package_rate_type) package_rate_types \n" +
                 "from packages p \n" +
                 "join package_type_mappings ptm on p.id = ptm.package_id and ptm.status = 'ACTIVE'\n" +
                 "join package_types pt on pt.id = ptm.package_type_id and pt.status = 'ACTIVE'\n" +

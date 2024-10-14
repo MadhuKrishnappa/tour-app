@@ -36,6 +36,7 @@ public class PackageDetailsVO {
     public List<String> packageTypes;
     public List<String> packageThemes;
     public List<String> tourIncludes;
+    public List<String> packageRateTypes;
     public List<CityVO> touringCities;
     public List<PackageRateVO> packageRates;
     public List<PackageItineraryVO> itineraries;
